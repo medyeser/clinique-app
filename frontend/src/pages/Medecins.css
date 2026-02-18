@@ -1,0 +1,257 @@
+/* Médecins Page Styles */
+.medecins-page {
+    animation: fadeIn 0.3s ease;
+}
+
+.page-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 2rem;
+}
+
+.page-header h1 {
+    margin: 0;
+    white-space: nowrap;
+    font-size: 1.5rem;
+}
+
+/* Doctors Grid */
+.medecins-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
+    gap: 1.5rem;
+}
+
+/* Doctor Card */
+.medecin-card {
+    overflow: visible;
+}
+
+.medecin-header {
+    padding: 1.5rem;
+    background: linear-gradient(135deg, var(--secondary-500) 0%, var(--secondary-700) 100%);
+    display: flex;
+    align-items: flex-start;
+    justify-content: space-between;
+}
+
+.medecin-avatar {
+    width: 56px;
+    height: 56px;
+    background: rgba(255, 255, 255, 0.2);
+    border-radius: 12px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: white;
+    backdrop-filter: blur(10px);
+}
+
+.medecin-actions {
+    display: flex;
+    gap: 0.5rem;
+}
+
+.medecin-actions .btn {
+    background: rgba(255, 255, 255, 0.2);
+    border: none;
+    color: white;
+}
+
+.medecin-actions .btn:hover {
+    background: rgba(255, 255, 255, 0.3);
+}
+
+.medecin-actions .btn-danger:hover {
+    background: var(--error);
+}
+
+.medecin-body {
+    padding: 1.5rem;
+}
+
+.medecin-body h3 {
+    font-size: 1.125rem;
+    font-weight: 600;
+    margin-bottom: 0.5rem;
+}
+
+.medecin-body .badge {
+    margin-bottom: 1rem;
+}
+
+.medecin-contact {
+    display: flex;
+    flex-direction: column;
+    gap: 0.375rem;
+    margin-top: 1rem;
+    padding-top: 1rem;
+    border-top: 1px solid var(--gray-200);
+}
+
+.medecin-contact span {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    font-size: 0.8125rem;
+    color: var(--gray-600);
+}
+
+.medecin-ordre {
+    margin-top: 0.75rem;
+    font-size: 0.75rem;
+    color: var(--gray-500);
+}
+
+/* Responsive */
+@media (max-width: 768px) {
+    .medecins-grid {
+        grid-template-columns: 1fr;
+    }
+}
+
+/* Enhanced Search Bar & Actions (Copied from Patients.css) */
+.page-header-actions {
+    display: flex;
+    gap: 1rem;
+    align-items: center;
+}
+
+.search-bar {
+    display: flex;
+    align-items: center;
+    background-color: white;
+    border: 1px solid var(--gray-300);
+    border-radius: 12px;
+    padding: 0.15rem 1rem;
+    box-shadow: 0 1px 2px rgba(0, 0, 0, 0.05);
+    transition: all 0.2s ease;
+    width: 300px;
+}
+
+.search-bar:focus-within {
+    border-color: var(--primary-500);
+    box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.1);
+}
+
+.search-bar input {
+    border: none;
+    outline: none;
+    background: transparent;
+    margin-left: 0.75rem;
+    width: 100%;
+    font-size: 0.95rem;
+    color: var(--gray-800);
+}
+
+.search-bar input::placeholder {
+    color: var(--gray-400);
+}
+
+.search-bar .btn-secondary {
+    background: transparent;
+    border: none;
+    color: var(--gray-500);
+    cursor: pointer;
+    padding: 4px;
+    border-radius: 6px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: all 0.2s;
+}
+
+.search-bar .btn-secondary:hover {
+    background-color: var(--gray-100);
+    color: var(--primary-600);
+}
+
+/* Enhanced Primary Button (Add Medecin) */
+.btn-primary {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    background: linear-gradient(135deg, var(--primary-600) 0%, var(--primary-700) 100%);
+    color: white;
+    border: none;
+    padding: 0.75rem 1.25rem;
+    border-radius: 12px;
+    font-weight: 600;
+    font-size: 0.95rem;
+    box-shadow: 0 4px 6px rgba(37, 99, 235, 0.15);
+    transition: all 0.2s ease;
+    cursor: pointer;
+}
+
+.btn-primary:hover {
+    transform: translateY(-1px);
+    box-shadow: 0 6px 12px rgba(37, 99, 235, 0.2);
+    background: linear-gradient(135deg, var(--primary-500) 0%, var(--primary-600) 100%);
+}
+
+.btn-primary:active {
+    transform: translateY(0);
+    box-shadow: 0 2px 4px rgba(37, 99, 235, 0.1);
+}
+
+/* From Uiverse.io by andrew-demchenk0 */
+.button {
+    position: relative;
+    width: 175px;
+    height: 40px;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    border: 1px solid #1d4ed8;
+    background-color: #2563eb;
+}
+
+.button,
+.button__icon,
+.button__text {
+    transition: all 0.3s;
+}
+
+.button .button__text {
+    transform: translateX(10px);
+    color: #fff;
+    font-weight: 600;
+}
+
+.button .button__icon {
+    position: absolute;
+    transform: translateX(134px);
+    height: 100%;
+    width: 39px;
+    background-color: #1d4ed8;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.button .svg {
+    width: 30px;
+    stroke: #fff;
+}
+
+.button:hover {
+    background: #1d4ed8;
+}
+
+.button:hover .button__text {
+    color: transparent;
+}
+
+.button:hover .button__icon {
+    width: 173px;
+    transform: translateX(0);
+}
+
+.button:active .button__icon {
+    background-color: #1e40af;
+}
+
+.button:active {
+    border: 1px solid #1e40af;
+}

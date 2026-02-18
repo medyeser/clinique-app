@@ -1,0 +1,261 @@
+/* Rendez-vous Page Styles */
+.rdv-page {
+    animation: fadeIn 0.3s ease;
+}
+
+/* View Toggle */
+.view-toggle {
+    display: flex;
+    gap: 0.25rem;
+    background: var(--gray-200);
+    padding: 0.25rem;
+    border-radius: var(--border-radius-sm);
+}
+
+.view-toggle .btn {
+    padding: 0.5rem 1rem;
+}
+
+/* DateTime Cell */
+.datetime-cell {
+    display: flex;
+    flex-direction: column;
+    gap: 0.25rem;
+}
+
+.datetime-cell .date,
+.datetime-cell .time {
+    display: flex;
+    align-items: center;
+    gap: 0.375rem;
+    font-size: 0.8125rem;
+}
+
+.datetime-cell .date {
+    font-weight: 500;
+    color: var(--gray-800);
+}
+
+.datetime-cell .time {
+    color: var(--primary-600);
+}
+
+/* Person Cell */
+.person-cell {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    color: var(--gray-700);
+}
+
+/* Calendar Styles */
+.calendar-card {
+    padding: 0;
+}
+
+.calendar-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 1.5rem;
+    border-bottom: 1px solid var(--gray-200);
+}
+
+.calendar-header h2 {
+    font-size: 1.25rem;
+    text-transform: capitalize;
+}
+
+.calendar-grid {
+    padding: 1rem;
+}
+
+.calendar-weekdays {
+    display: grid;
+    grid-template-columns: repeat(7, 1fr);
+    gap: 0.5rem;
+    margin-bottom: 0.5rem;
+}
+
+.weekday {
+    text-align: center;
+    font-weight: 600;
+    font-size: 0.75rem;
+    color: var(--gray-500);
+    text-transform: uppercase;
+    padding: 0.5rem;
+}
+
+.calendar-days {
+    display: grid;
+    grid-template-columns: repeat(7, 1fr);
+    gap: 0.5rem;
+}
+
+.calendar-day {
+    aspect-ratio: 1;
+    padding: 0.5rem;
+    border-radius: var(--border-radius-sm);
+    border: 1px solid var(--gray-200);
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 0.25rem;
+    cursor: pointer;
+    transition: all var(--transition-fast);
+}
+
+.calendar-day:not(.empty):hover {
+    border-color: var(--primary-300);
+    background: var(--primary-50);
+}
+
+.calendar-day.empty {
+    background: var(--gray-50);
+    border: none;
+}
+
+.calendar-day.today {
+    background: var(--primary-100);
+    border-color: var(--primary-400);
+}
+
+.calendar-day.today .day-number {
+    background: var(--primary-500);
+    color: white;
+    width: 28px;
+    height: 28px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.calendar-day.has-rdv {
+    background: linear-gradient(135deg, var(--success-light) 0%, white 100%);
+    border-color: var(--success);
+}
+
+.calendar-day.past {
+    background-color: #f3f4f6;
+    color: #9ca3af;
+    cursor: not-allowed;
+    pointer-events: none;
+    border-color: #e5e7eb;
+}
+
+/* Page Header Fix */
+.page-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 2rem;
+}
+
+.page-header h1 {
+    margin: 0;
+    white-space: nowrap;
+    font-size: 1.5rem;
+}
+
+.day-number {
+    font-weight: 600;
+    font-size: 0.875rem;
+    color: var(--gray-800);
+}
+
+.day-rdv-count {
+    font-size: 0.625rem;
+    background: var(--success);
+    color: white;
+    padding: 0.125rem 0.375rem;
+    border-radius: 4px;
+    font-weight: 500;
+}
+
+/* Status Actions */
+.btn-success {
+    background: var(--success);
+}
+
+.btn-success:hover {
+    background: #43a047;
+}
+
+/* Responsive */
+@media (max-width: 768px) {
+    .page-header-actions {
+        flex-direction: column;
+        gap: 0.75rem;
+    }
+
+    .calendar-day {
+        padding: 0.25rem;
+        font-size: 0.75rem;
+    }
+
+    .day-rdv-count {
+        display: none;
+    }
+}
+
+/* Animated Button Styles */
+.button {
+    position: relative;
+    width: 175px;
+    height: 40px;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    border: 1px solid #1d4ed8;
+    background-color: #2563eb;
+}
+
+.button,
+.button__icon,
+.button__text {
+    transition: all 0.3s;
+}
+
+.button .button__text {
+    transform: translateX(10px);
+    color: #fff;
+    font-weight: 600;
+}
+
+.button .button__icon {
+    position: absolute;
+    transform: translateX(134px);
+    height: 100%;
+    width: 39px;
+    background-color: #1d4ed8;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.button .svg {
+    width: 30px;
+    stroke: #fff;
+}
+
+.button:hover {
+    background: #1d4ed8;
+}
+
+.button:hover .button__text {
+    color: transparent;
+}
+
+.button:hover .button__icon {
+    width: 173px;
+    transform: translateX(0);
+}
+
+.button:active .button__icon {
+    background-color: #1e40af;
+}
+
+.button:active {
+    border: 1px solid #1e40af;
+}
