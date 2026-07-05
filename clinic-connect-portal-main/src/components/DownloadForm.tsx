@@ -76,8 +76,8 @@ const DownloadForm = ({ open, onOpenChange }: DownloadFormProps) => {
     setIsLoading(true);
 
     try {
-      // Make real API call to backend
-      const response = await fetch('http://localhost:8000/api/download-requests', {
+      // Create a download request directly
+      const response = await fetch('https://clinique-app-p2o2.onrender.com/api/download-requests', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',

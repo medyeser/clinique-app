@@ -2,6 +2,7 @@ import { useState } from "react";
 import Navbar from "@/components/Navbar";
 import Hero from "@/components/Hero";
 import Features from "@/components/Features";
+import Contact from "@/components/Contact";
 import Footer from "@/components/Footer";
 import DownloadForm from "@/components/DownloadForm";
 
@@ -13,6 +14,7 @@ const Index = () => {
       <Navbar onDownloadClick={() => setIsDownloadOpen(true)} />
       <Hero onDownloadClick={() => setIsDownloadOpen(true)} />
       <Features />
+      <Contact />
       <Footer />
       <DownloadForm open={isDownloadOpen} onOpenChange={setIsDownloadOpen} />
     </div>

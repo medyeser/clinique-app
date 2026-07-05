@@ -58,7 +58,7 @@ const Verification = () => {
     setIsVerifying(true);
 
     try {
-      const response = await fetch('http://localhost:8000/api/download-requests/verify-code', {
+      const response = await fetch('https://clinique-app-p2o2.onrender.com/api/download-requests/verify-code', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
