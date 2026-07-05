@@ -29,3 +29,7 @@ reports/*.xlsx
 # OS
 .DS_Store
 Thumbs.db
+
+# Large files
+downloads/*.zip
+downloads/*.exe
