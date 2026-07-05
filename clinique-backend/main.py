@@ -70,7 +70,14 @@ class SecurityHeadersMiddleware(BaseHTTPMiddleware):
 # Configure CORS - Must be added before routes
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=["http://localhost:5173", "http://localhost:8080", "http://localhost:3000", "http://127.0.0.1:5173", "http://127.0.0.1:8080"],  # Frontend origins
+    allow_origins=[
+        "http://localhost:5173", 
+        "http://localhost:8080", 
+        "http://localhost:3000", 
+        "http://127.0.0.1:5173", 
+        "http://127.0.0.1:8080",
+        "https://gestion-clinique-04.netlify.app"
+    ],  # Frontend origins
     allow_credentials=True,
     allow_methods=["GET", "POST", "PUT", "DELETE", "OPTIONS", "PATCH"],
     allow_headers=["*"],
@@ -96,11 +103,12 @@ async def global_exception_handler(request: Request, exc: Exception):
     """Global exception handler to ensure CORS headers are always present."""
     print(f"Unhandled exception: {str(exc)}")
     print(traceback.format_exc())
+    origin = request.headers.get("origin") or "http://localhost:5173"
     return JSONResponse(
         status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
         content={"detail": f"Internal server error: {str(exc)}"},
         headers={
-            "Access-Control-Allow-Origin": "http://localhost:5173",
+            "Access-Control-Allow-Origin": origin,
             "Access-Control-Allow-Credentials": "true",
         }
     )
