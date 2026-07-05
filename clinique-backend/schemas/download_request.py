@@ -74,7 +74,7 @@ class DownloadInfo(BaseModel):
     class Config:
         json_schema_extra = {
             "example": {
-                "download_url": "https://example.com/clinique-software.exe",
+                "download_url": "https://clinique-app-p2o2.onrender.com/downloads/clinique_software.zip",
                 "database_name": "clinique_monji_slim",
                 "database_host": "localhost",
                 "database_port": 3306,

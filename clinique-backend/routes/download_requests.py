@@ -118,7 +118,7 @@ def verify_access_code(
     db_user = os.getenv('MYSQL_USER', 'root')
     
     # Get download URL from environment or use default
-    download_url = os.getenv('DOWNLOAD_FILE_URL', 'https://example.com/clinique-software.exe')
+    download_url = os.getenv('DOWNLOAD_FILE_URL', 'https://clinique-app-p2o2.onrender.com/downloads/clinique_software.zip')
     
     print(f"✅ Code vérifié avec succès: {verification.access_code} - Téléchargement autorisé pour {request.email}")
     
