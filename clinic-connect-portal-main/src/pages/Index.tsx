@@ -15,7 +15,9 @@ import {
   ArrowRight,
   ShieldCheck,
   Sparkles,
-  X
+  X,
+  KeyRound,
+  FileSpreadsheet
 } from "lucide-react";
 
 const BACKEND_URLS = [
@@ -24,8 +26,12 @@ const BACKEND_URLS = [
 ];
 
 const Index = () => {
+  // Modal state for download request form
+  const [isFormModalOpen, setIsFormModalOpen] = useState(false);
+
   // Download code state
   const [accessCode, setAccessCode] = useState("");
+  const [showCodeInput, setShowCodeInput] = useState(false);
   const [isVerifying, setIsVerifying] = useState(false);
   const [verifyError, setVerifyError] = useState("");
   const [downloadSuccessData, setDownloadSuccessData] = useState<{
@@ -34,7 +40,7 @@ const Index = () => {
     access_code: string;
   } | null>(null);
 
-  // Contact / Access request form state
+  // Form state
   const [formData, setFormData] = useState({
     fullName: "",
     clinique: "tawfik",
@@ -47,7 +53,7 @@ const Index = () => {
   const [submitError, setSubmitError] = useState("");
   const [generatedRequestId, setGeneratedRequestId] = useState<number | null>(null);
 
-  // Handle Verify & Download
+  // Handle Verify & Download with access code
   const handleDownload = async (e: React.FormEvent) => {
     e.preventDefault();
     setVerifyError("");
@@ -55,7 +61,8 @@ const Index = () => {
 
     const cleanCode = accessCode.trim().toUpperCase();
     if (!cleanCode) {
-      setVerifyError("Veuillez saisir votre code d'accès.");
+      // If code is empty, open the request form modal
+      setIsFormModalOpen(true);
       return;
     }
 
@@ -99,7 +106,6 @@ const Index = () => {
         } else {
           const errData = await response.json().catch(() => ({}));
           lastError = errData.detail || "Code d'accès invalide ou demande non approuvée.";
-          // If it's 404 or 400 from the backend, don't fallback to next url as the backend answered
           break;
         }
       } catch (err: any) {
@@ -113,7 +119,7 @@ const Index = () => {
     setIsVerifying(false);
   };
 
-  // Handle Contact / Request submission
+  // Handle Request submission (from modal or page form)
   const handleSubmitRequest = async (e: React.FormEvent) => {
     e.preventDefault();
     setSubmitError("");
@@ -149,6 +155,7 @@ const Index = () => {
           const resData = await response.json();
           setGeneratedRequestId(resData.id || 1);
           setSubmitSuccess(true);
+          setIsFormModalOpen(false);
           success = true;
           break;
         } else {
@@ -185,9 +192,12 @@ const Index = () => {
             <a href="#roles" style={{ textDecoration: "none", color: "#E8F4F2", transition: "color 0.2s" }}>Profils</a>
             <a href="#fonctions" style={{ textDecoration: "none", color: "#E8F4F2", transition: "color 0.2s" }}>Fonctionnalités</a>
             <a href="#acces" style={{ textDecoration: "none", color: "#E8F4F2", transition: "color 0.2s" }}>Accès sécurisé</a>
-            <a href="#acces" style={{ textDecoration: "none", color: "#061B1E", background: "#2DD4BF", padding: "12px 22px", borderRadius: "999px", fontWeight: 600, display: "flex", alignItems: "center", gap: "8px" }}>
+            <button 
+              onClick={() => setIsFormModalOpen(true)}
+              style={{ font: "inherit", cursor: "pointer", border: 0, textDecoration: "none", color: "#061B1E", background: "#2DD4BF", padding: "12px 22px", borderRadius: "999px", fontWeight: 600, display: "flex", alignItems: "center", gap: "8px" }}
+            >
               <Download size={16} /> Téléchargement
-            </a>
+            </button>
           </nav>
         </header>
 
@@ -206,9 +216,12 @@ const Index = () => {
           </p>
           
           <div style={{ display: "flex", flexWrap: "wrap", justifyContent: "center", gap: "14px" }}>
-            <a href="#contact" style={{ textDecoration: "none", color: "#061B1E", background: "#2DD4BF", padding: "16px 32px", borderRadius: "999px", fontWeight: 600, display: "flex", alignItems: "center", gap: "8px" }}>
+            <button 
+              onClick={() => setIsFormModalOpen(true)}
+              style={{ font: "inherit", cursor: "pointer", border: 0, color: "#061B1E", background: "#2DD4BF", padding: "16px 32px", borderRadius: "999px", fontWeight: 600, display: "flex", alignItems: "center", gap: "8px" }}
+            >
               Demander un code d'accès <ArrowRight size={18} />
-            </a>
+            </button>
             <a href="#fonctions" style={{ textDecoration: "none", color: "#fff", border: "1.5px solid #2B5E60", padding: "15px 32px", borderRadius: "999px", fontWeight: 600 }}>
               Découvrir le logiciel
             </a>
@@ -244,7 +257,6 @@ const Index = () => {
                 alt="Tableau de bord de Tech Clinic Manager : patients, médecins, rendez-vous et revenus" 
                 style={{ display: "block", width: "100%", height: "auto", maxHeight: "560px", objectFit: "cover", objectPosition: "top left" }}
                 onError={(e) => {
-                  // Fallback in case local asset path differs
                   const target = e.target as HTMLImageElement;
                   if (!target.src.includes("dashboard.png")) {
                     target.src = "/dashboard.png";
@@ -393,27 +405,28 @@ const Index = () => {
         <div style={{ display: "flex", flexWrap: "wrap", gap: "20px" }}>
           <div style={{ flex: "1 1 260px", display: "flex", flexDirection: "column", gap: "12px", padding: "28px", border: "1px solid #16393D", borderRadius: "20px", background: "#0C2A2E" }}>
             <span style={{ width: "44px", height: "44px", borderRadius: "50%", background: "#2DD4BF", color: "#061B1E", display: "flex", alignItems: "center", justifyContent: "center", fontFamily: "'Bricolage Grotesque', sans-serif", fontWeight: 700, fontSize: "20px" }}>1</span>
-            <h3 style={{ margin: 0, color: "#fff", fontSize: "20px" }}>Demande d'accès</h3>
-            <p style={{ margin: 0, color: "#9DBAB6", lineHeight: 1.55 }}>La clinique envoie sa demande depuis le portail web.</p>
+            <h3 style={{ margin: 0, color: "#fff", fontSize: "20px" }}>Demande de téléchargement</h3>
+            <p style={{ margin: 0, color: "#9DBAB6", lineHeight: 1.55 }}>Cliquez sur Télécharger pour remplir le formulaire et envoyer votre demande.</p>
           </div>
 
           <div style={{ flex: "1 1 260px", display: "flex", flexDirection: "column", gap: "12px", padding: "28px", border: "1px solid #16393D", borderRadius: "20px", background: "#0C2A2E" }}>
             <span style={{ width: "44px", height: "44px", borderRadius: "50%", background: "#2DD4BF", color: "#061B1E", display: "flex", alignItems: "center", justifyContent: "center", fontFamily: "'Bricolage Grotesque', sans-serif", fontWeight: 700, fontSize: "20px" }}>2</span>
-            <h3 style={{ margin: 0, color: "#fff", fontSize: "20px" }}>Code unique</h3>
-            <p style={{ margin: 0, color: "#9DBAB6", lineHeight: 1.55 }}>Un code d'accès propre à chaque clinique est généré.</p>
+            <h3 style={{ margin: 0, color: "#fff", fontSize: "20px" }}>Code d'accès unique</h3>
+            <p style={{ margin: 0, color: "#9DBAB6", lineHeight: 1.55 }}>Un code propre à votre clinique (Tawfik ou Monji Slim) est attribué.</p>
           </div>
 
           <div style={{ flex: "1 1 260px", display: "flex", flexDirection: "column", gap: "12px", padding: "28px", border: "1px solid #16393D", borderRadius: "20px", background: "#0C2A2E" }}>
             <span style={{ width: "44px", height: "44px", borderRadius: "50%", background: "#2DD4BF", color: "#061B1E", display: "flex", alignItems: "center", justifyContent: "center", fontFamily: "'Bricolage Grotesque', sans-serif", fontWeight: 700, fontSize: "20px" }}>3</span>
-            <h3 style={{ margin: 0, color: "#fff", fontSize: "20px" }}>Validation</h3>
-            <p style={{ margin: 0, color: "#9DBAB6", lineHeight: 1.55 }}>Le code est validé, le logiciel est distribué en toute sécurité.</p>
+            <h3 style={{ margin: 0, color: "#fff", fontSize: "20px" }}>Téléchargement immédiat</h3>
+            <p style={{ margin: 0, color: "#9DBAB6", lineHeight: 1.55 }}>Le code valide le téléchargement sécurisé du pack logiciel complet.</p>
           </div>
         </div>
 
         {/* Live Interactive Download Card */}
-        <div style={{ background: "linear-gradient(135deg, #0F4A4C, #0A2F32)", border: "1px solid #1F5A5A", borderRadius: "24px", padding: "36px", display: "flex", flexDirection: "column", gap: "20px" }}>
+        <div style={{ background: "linear-gradient(135deg, #0F4A4C, #0A2F32)", border: "1px solid #1F5A5A", borderRadius: "24px", padding: "36px", display: "flex", flexDirection: "column", gap: "24px" }}>
+          
           <div style={{ display: "flex", flexWrap: "wrap", gap: "28px", alignItems: "center", justifyContent: "space-between" }}>
-            <div style={{ flex: "1 1 300px", display: "flex", flexDirection: "column", gap: "8px" }}>
+            <div style={{ flex: "1 1 320px", display: "flex", flexDirection: "column", gap: "8px" }}>
               <div style={{ display: "flex", alignItems: "center", gap: "10px" }}>
                 <ShieldCheck color="#2DD4BF" size={28} />
                 <h3 style={{ margin: 0, fontFamily: "'Bricolage Grotesque', sans-serif", fontSize: "28px", color: "#fff" }}>
@@ -421,38 +434,64 @@ const Index = () => {
                 </h3>
               </div>
               <p style={{ margin: 0, color: "#B7D3CF", lineHeight: 1.55 }}>
-                Saisissez le code d'accès unique de votre clinique pour débloquer le téléchargement sécurisé.
+                Cliquez pour envoyer votre demande de téléchargement ou saisissez directement votre code d'accès si vous l'avez déjà reçu.
               </p>
             </div>
 
-            <form onSubmit={handleDownload} style={{ flex: "1 1 320px", display: "flex", flexWrap: "wrap", gap: "12px", alignItems: "flex-end" }}>
-              <label style={{ flex: "1 1 200px", display: "flex", flexDirection: "column", gap: "6px", fontWeight: 600, color: "#fff" }}>
-                Code d'accès
-                <input 
-                  type="text" 
-                  value={accessCode}
-                  onChange={(e) => setAccessCode(e.target.value)}
-                  placeholder="Ex: CLINIC-ABC123" 
-                  style={{ font: "inherit", padding: "14px", border: "1px solid #2B5E60", borderRadius: "12px", background: "#061B1E", color: "#fff", outline: "none" }}
-                />
-              </label>
+            {/* Action Buttons: 1. Click to open request form, 2. Enter existing code */}
+            <div style={{ flex: "1 1 320px", display: "flex", flexWrap: "wrap", gap: "12px", alignItems: "center" }}>
               <button 
-                type="submit" 
-                disabled={isVerifying}
-                style={{ font: "inherit", fontWeight: 600, color: "#061B1E", background: "#2DD4BF", border: 0, padding: "14px 26px", borderRadius: "999px", cursor: isVerifying ? "not-allowed" : "pointer", minHeight: "50px", display: "flex", alignItems: "center", gap: "8px", opacity: isVerifying ? 0.7 : 1 }}
+                onClick={() => setIsFormModalOpen(true)}
+                style={{ font: "inherit", fontWeight: 600, color: "#061B1E", background: "#2DD4BF", border: 0, padding: "16px 28px", borderRadius: "999px", cursor: "pointer", display: "flex", alignItems: "center", gap: "10px", boxShadow: "0 10px 25px rgba(45,212,191,0.3)" }}
               >
-                {isVerifying ? (
-                  <>
-                    <Loader2 size={20} className="animate-spin" /> Vérification...
-                  </>
-                ) : (
-                  <>
-                    <Download size={20} /> Télécharger
-                  </>
-                )}
+                <Download size={20} /> Télécharger le logiciel
               </button>
-            </form>
+
+              <button 
+                onClick={() => setShowCodeInput(!showCodeInput)}
+                style={{ font: "inherit", fontWeight: 600, color: "#fff", background: "rgba(12,42,46,0.8)", border: "1.5px solid #2B5E60", padding: "15px 24px", borderRadius: "999px", cursor: "pointer", display: "flex", alignItems: "center", gap: "8px" }}
+              >
+                <KeyRound size={18} color="#2DD4BF" />
+                {showCodeInput ? "Masquer le code" : "J'ai déjà un code d'accès"}
+              </button>
+            </div>
           </div>
+
+          {/* Collapsible / Optional Code Verification Form */}
+          {showCodeInput && (
+            <div style={{ borderTop: "1px solid #1F5A5A", paddingTop: "20px", display: "flex", flexDirection: "column", gap: "16px" }}>
+              <div style={{ fontSize: "15px", color: "#7FE9DA", fontWeight: 600 }}>
+                Entrez votre code d'accès reçu de l'administrateur :
+              </div>
+              <form onSubmit={handleDownload} style={{ display: "flex", flexWrap: "wrap", gap: "12px", alignItems: "flex-end" }}>
+                <label style={{ flex: "1 1 240px", display: "flex", flexDirection: "column", gap: "6px", fontWeight: 600, color: "#fff" }}>
+                  Code d'accès unique
+                  <input 
+                    type="text" 
+                    value={accessCode}
+                    onChange={(e) => setAccessCode(e.target.value)}
+                    placeholder="Ex: CLINIC-ABC123" 
+                    style={{ font: "inherit", padding: "14px", border: "1px solid #2B5E60", borderRadius: "12px", background: "#061B1E", color: "#fff", outline: "none" }}
+                  />
+                </label>
+                <button 
+                  type="submit" 
+                  disabled={isVerifying}
+                  style={{ font: "inherit", fontWeight: 600, color: "#061B1E", background: "#2DD4BF", border: 0, padding: "14px 26px", borderRadius: "999px", cursor: isVerifying ? "not-allowed" : "pointer", minHeight: "50px", display: "flex", alignItems: "center", gap: "8px", opacity: isVerifying ? 0.7 : 1 }}
+                >
+                  {isVerifying ? (
+                    <>
+                      <Loader2 size={20} className="animate-spin" /> Vérification...
+                    </>
+                  ) : (
+                    <>
+                      <Download size={20} /> Valider &amp; Télécharger
+                    </>
+                  )}
+                </button>
+              </form>
+            </div>
+          )}
 
           {/* Validation Feedback Messages */}
           {verifyError && (
@@ -517,7 +556,7 @@ const Index = () => {
             </div>
             
             <h2 style={{ margin: 0, fontFamily: "'Bricolage Grotesque', sans-serif", fontSize: "clamp(30px, 4vw, 42px)", lineHeight: 1.1, letterSpacing: "-0.02em", color: "#fff" }}>
-              Contactez-nous & Demandez un accès
+              Contactez-nous &amp; Demandez un accès
             </h2>
             <p style={{ margin: 0, color: "#B7D3CF", lineHeight: 1.55 }}>
               Une question, une démonstration ou une demande d'accès ? Remplissez ce formulaire et notre équipe vous transmettra votre code d'accès au logiciel.
@@ -608,9 +647,119 @@ const Index = () => {
         </div>
       </section>
 
+      {/* POPUP / MODAL: Formulaire de demande de téléchargement */}
+      {isFormModalOpen && (
+        <div style={{ position: "fixed", inset: 0, background: "rgba(0,0,0,0.8)", backdropFilter: "blur(6px)", display: "flex", alignItems: "center", justifyContent: "center", padding: "20px", zIndex: 9999 }}>
+          <div style={{ background: "#0C2A2E", border: "1px solid #2DD4BF", borderRadius: "24px", maxWidth: "560px", width: "100%", maxHeight: "90vh", overflowY: "auto", padding: "32px", position: "relative", boxShadow: "0 25px 60px rgba(0,0,0,0.6)" }}>
+            <button 
+              onClick={() => setIsFormModalOpen(false)}
+              style={{ position: "absolute", top: "18px", right: "18px", background: "transparent", border: 0, color: "#9DBAB6", cursor: "pointer" }}
+            >
+              <X size={24} />
+            </button>
+
+            <div style={{ display: "flex", alignItems: "center", gap: "12px", marginBottom: "8px" }}>
+              <div style={{ width: "48px", height: "48px", borderRadius: "14px", background: "rgba(45,212,191,0.15)", display: "flex", alignItems: "center", justifyContent: "center", color: "#2DD4BF" }}>
+                <Download size={26} />
+              </div>
+              <div>
+                <h3 style={{ margin: 0, fontFamily: "'Bricolage Grotesque', sans-serif", fontSize: "24px", color: "#fff" }}>
+                  Demande de téléchargement
+                </h3>
+                <span style={{ fontSize: "14px", color: "#7FE9DA" }}>Tech Clinic Manager</span>
+              </div>
+            </div>
+
+            <p style={{ margin: "0 0 20px", color: "#9DBAB6", fontSize: "15px", lineHeight: 1.5 }}>
+              Remplissez ce formulaire afin de générer votre demande d'accès. Vous recevrez le code d'accès pour débloquer l'installation.
+            </p>
+
+            <form onSubmit={handleSubmitRequest} style={{ display: "flex", flexDirection: "column", gap: "12px" }}>
+              <label style={{ display: "flex", flexDirection: "column", gap: "5px", fontWeight: 600, color: "#fff", fontSize: "15px" }}>
+                Nom complet *
+                <input 
+                  type="text" 
+                  required
+                  value={formData.fullName}
+                  onChange={(e) => setFormData({ ...formData, fullName: e.target.value })}
+                  placeholder="Ex: Dr. Mohamed Yesser" 
+                  style={{ font: "inherit", padding: "12px", border: "1px solid #2B5E60", borderRadius: "10px", background: "#061B1E", color: "#fff", outline: "none" }}
+                />
+              </label>
+
+              <label style={{ display: "flex", flexDirection: "column", gap: "5px", fontWeight: 600, color: "#fff", fontSize: "15px" }}>
+                Établissement / Clinique *
+                <select 
+                  value={formData.clinique}
+                  onChange={(e) => setFormData({ ...formData, clinique: e.target.value })}
+                  style={{ font: "inherit", padding: "12px", border: "1px solid #2B5E60", borderRadius: "10px", background: "#061B1E", color: "#fff", outline: "none" }}
+                >
+                  <option value="tawfik" style={{ background: "#061B1E" }}>Clinique Tawfik (Base clinique_db)</option>
+                  <option value="monji-slim" style={{ background: "#061B1E" }}>Clinique Monji Slim (Base clinique_monji_slim)</option>
+                </select>
+              </label>
+
+              <label style={{ display: "flex", flexDirection: "column", gap: "5px", fontWeight: 600, color: "#fff", fontSize: "15px" }}>
+                Email professionnel *
+                <input 
+                  type="email" 
+                  required
+                  value={formData.email}
+                  onChange={(e) => setFormData({ ...formData, email: e.target.value })}
+                  placeholder="votre@email.com" 
+                  style={{ font: "inherit", padding: "12px", border: "1px solid #2B5E60", borderRadius: "10px", background: "#061B1E", color: "#fff", outline: "none" }}
+                />
+              </label>
+
+              <label style={{ display: "flex", flexDirection: "column", gap: "5px", fontWeight: 600, color: "#fff", fontSize: "15px" }}>
+                Numéro de téléphone
+                <input 
+                  type="tel" 
+                  value={formData.phone}
+                  onChange={(e) => setFormData({ ...formData, phone: e.target.value })}
+                  placeholder="+216 ..." 
+                  style={{ font: "inherit", padding: "12px", border: "1px solid #2B5E60", borderRadius: "10px", background: "#061B1E", color: "#fff", outline: "none" }}
+                />
+              </label>
+
+              <label style={{ display: "flex", flexDirection: "column", gap: "5px", fontWeight: 600, color: "#fff", fontSize: "15px" }}>
+                Message ou précisions (optionnel)
+                <textarea 
+                  rows={2} 
+                  value={formData.message}
+                  onChange={(e) => setFormData({ ...formData, message: e.target.value })}
+                  placeholder="Service médical, nombre de postes..." 
+                  style={{ font: "inherit", padding: "12px", border: "1px solid #2B5E60", borderRadius: "10px", background: "#061B1E", color: "#fff", resize: "vertical", outline: "none" }}
+                />
+              </label>
+
+              {submitError && (
+                <div style={{ background: "rgba(239, 68, 68, 0.15)", border: "1px solid #ef4444", borderRadius: "10px", padding: "10px", color: "#fca5a5", fontSize: "14px" }}>
+                  {submitError}
+                </div>
+              )}
+
+              <button 
+                type="submit" 
+                disabled={isSubmitting}
+                style={{ font: "inherit", fontWeight: 600, color: "#061B1E", background: "#2DD4BF", border: 0, padding: "14px 24px", borderRadius: "999px", cursor: isSubmitting ? "not-allowed" : "pointer", marginTop: "10px", display: "flex", alignItems: "center", justifyContent: "center", gap: "8px", opacity: isSubmitting ? 0.7 : 1 }}
+              >
+                {isSubmitting ? (
+                  <>
+                    <Loader2 size={18} className="animate-spin" /> Envoi de la demande...
+                  </>
+                ) : (
+                  "Envoyer la demande de téléchargement"
+                )}
+              </button>
+            </form>
+          </div>
+        </div>
+      )}
+
       {/* Success Modal upon Form Submission */}
       {submitSuccess && (
-        <div style={{ position: "fixed", inset: 0, background: "rgba(0,0,0,0.75)", display: "flex", alignItems: "center", justifyContent: "center", padding: "20px", zIndex: 9999 }}>
+        <div style={{ position: "fixed", inset: 0, background: "rgba(0,0,0,0.8)", backdropFilter: "blur(6px)", display: "flex", alignItems: "center", justifyContent: "center", padding: "20px", zIndex: 9999 }}>
           <div style={{ background: "#0C2A2E", border: "1px solid #2DD4BF", borderRadius: "24px", maxWidth: "520px", width: "100%", padding: "36px", position: "relative", boxShadow: "0 25px 50px -12px rgba(0,0,0,0.5)" }}>
             <button 
               onClick={() => setSubmitSuccess(false)}
@@ -626,18 +775,28 @@ const Index = () => {
                 Demande envoyée avec succès !
               </h3>
               <p style={{ margin: 0, color: "#9DBAB6", lineHeight: 1.6, fontSize: "16px" }}>
-                Votre demande (Réf #{generatedRequestId}) pour la clinique sélectionnée a été enregistrée dans la base de données. Dès que l'administrateur aura validé votre demande, vous recevrez votre code d'accès unique.
+                Votre demande de téléchargement <strong>(Réf #{generatedRequestId})</strong> pour la clinique sélectionnée a été enregistrée.
+                Un code d'accès sera généré pour vous permettre de lancer le téléchargement.
               </p>
-              <button 
-                onClick={() => {
-                  setSubmitSuccess(false);
-                  const accesEl = document.getElementById("acces");
-                  if (accesEl) accesEl.scrollIntoView({ behavior: "smooth" });
-                }}
-                style={{ font: "inherit", fontWeight: 600, color: "#061B1E", background: "#2DD4BF", border: 0, padding: "14px 28px", borderRadius: "999px", cursor: "pointer", marginTop: "12px" }}
-              >
-                Aller à la section Téléchargement
-              </button>
+              <div style={{ display: "flex", gap: "12px", marginTop: "12px" }}>
+                <button 
+                  onClick={() => {
+                    setSubmitSuccess(false);
+                    setShowCodeInput(true);
+                    const accesEl = document.getElementById("acces");
+                    if (accesEl) accesEl.scrollIntoView({ behavior: "smooth" });
+                  }}
+                  style={{ font: "inherit", fontWeight: 600, color: "#061B1E", background: "#2DD4BF", border: 0, padding: "14px 24px", borderRadius: "999px", cursor: "pointer", display: "flex", alignItems: "center", gap: "8px" }}
+                >
+                  <KeyRound size={18} /> Saisir un code reçu
+                </button>
+                <button 
+                  onClick={() => setSubmitSuccess(false)}
+                  style={{ font: "inherit", fontWeight: 600, color: "#fff", background: "transparent", border: "1px solid #2B5E60", padding: "14px 24px", borderRadius: "999px", cursor: "pointer" }}
+                >
+                  Fermer
+                </button>
+              </div>
             </div>
           </div>
         </div>
