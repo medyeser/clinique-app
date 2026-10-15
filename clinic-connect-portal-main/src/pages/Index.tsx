@@ -20,10 +20,15 @@ import {
   FileSpreadsheet
 } from "lucide-react";
 
-const BACKEND_URLS = [
-  "https://clinique-app-p2o2.onrender.com",
-  "http://localhost:8000"
-];
+const getBackendUrls = () => {
+  if (typeof window !== "undefined") {
+    const isLocal = window.location.hostname === "localhost" || window.location.hostname === "127.0.0.1";
+    if (isLocal) {
+      return ["http://localhost:8000", "https://clinique-app-p2o2.onrender.com"];
+    }
+  }
+  return ["https://clinique-app-p2o2.onrender.com", "http://localhost:8000"];
+};
 
 const Index = () => {
   // Modal state for download request form
@@ -70,53 +75,62 @@ const Index = () => {
 
     let lastError = "Impossible de joindre le serveur. Vérifiez votre connexion.";
     let success = false;
+    const urls = getBackendUrls();
 
-    for (const baseUrl of BACKEND_URLS) {
-      try {
-        const response = await fetch(`${baseUrl}/api/download-requests/verify-code`, {
-          method: "POST",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({ access_code: cleanCode })
-        });
+    try {
+      for (const baseUrl of urls) {
+        try {
+          const controller = new AbortController();
+          const timeoutId = setTimeout(() => controller.abort(), 6000);
 
-        if (response.ok) {
-          const data = await response.json();
-          setDownloadSuccessData({
-            clinique_name: data.clinique_name || "Votre Clinique",
-            download_url: data.download_url,
-            access_code: cleanCode
+          const response = await fetch(`${baseUrl}/api/download-requests/verify-code`, {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({ access_code: cleanCode }),
+            signal: controller.signal
           });
+          clearTimeout(timeoutId);
 
-          // Trigger download
-          let targetUrl = data.download_url;
-          if (targetUrl.startsWith("http://localhost:8000") && window.location.hostname !== "localhost") {
-            targetUrl = `https://clinique-app-p2o2.onrender.com${targetUrl.replace("http://localhost:8000", "")}`;
+          if (response.ok) {
+            const data = await response.json();
+            setDownloadSuccessData({
+              clinique_name: data.clinique_name || "Votre Clinique",
+              download_url: data.download_url,
+              access_code: cleanCode
+            });
+
+            // Trigger download
+            let targetUrl = data.download_url;
+            if (targetUrl.startsWith("http://localhost:8000") && window.location.hostname !== "localhost") {
+              targetUrl = `https://clinique-app-p2o2.onrender.com${targetUrl.replace("http://localhost:8000", "")}`;
+            }
+
+            const link = document.createElement("a");
+            link.href = targetUrl;
+            link.setAttribute("download", "clinique_software.zip");
+            link.target = "_blank";
+            document.body.appendChild(link);
+            link.click();
+            document.body.removeChild(link);
+
+            success = true;
+            break;
+          } else {
+            const errData = await response.json().catch(() => ({}));
+            lastError = errData.detail || "Code d'accès invalide ou demande non approuvée.";
+            break;
           }
-
-          const link = document.createElement("a");
-          link.href = targetUrl;
-          link.setAttribute("download", "clinique_software.zip");
-          link.target = "_blank";
-          document.body.appendChild(link);
-          link.click();
-          document.body.removeChild(link);
-
-          success = true;
-          break;
-        } else {
-          const errData = await response.json().catch(() => ({}));
-          lastError = errData.detail || "Code d'accès invalide ou demande non approuvée.";
-          break;
+        } catch (err: any) {
+          lastError = err.name === "AbortError" ? "Délai de connexion dépassé (timeout)." : (err.message || lastError);
         }
-      } catch (err: any) {
-        lastError = err.message || lastError;
       }
-    }
 
-    if (!success) {
-      setVerifyError(lastError);
+      if (!success) {
+        setVerifyError(lastError);
+      }
+    } finally {
+      setIsVerifying(false);
     }
-    setIsVerifying(false);
   };
 
   // Handle Request submission (from modal or page form)
@@ -125,52 +139,69 @@ const Index = () => {
     setSubmitError("");
     setSubmitSuccess(false);
 
-    if (!formData.fullName.trim() || !formData.email.trim()) {
+    const trimmedName = formData.fullName.trim();
+    const trimmedEmail = formData.email.trim();
+
+    if (!trimmedName || !trimmedEmail) {
       setSubmitError("Veuillez renseigner votre nom complet et votre adresse email.");
       return;
     }
 
-    const nameParts = formData.fullName.trim().split(" ");
-    const nom = nameParts.length > 1 ? nameParts.slice(1).join(" ") : nameParts[0];
-    const prenom = nameParts.length > 1 ? nameParts[0] : "Dr";
+    const nameParts = trimmedName.split(/\s+/);
+    let nom = nameParts.length > 1 ? nameParts.slice(1).join(" ") : nameParts[0];
+    let prenom = nameParts.length > 1 ? nameParts[0] : "Dr";
+
+    // Ensure min length 2 for Pydantic schema validation
+    if (nom.length < 2) nom = nom + "_";
+    if (prenom.length < 2) prenom = prenom + "_";
 
     setIsSubmitting(true);
     let success = false;
     let lastError = "Erreur lors de l'envoi de la demande. Veuillez réessayer.";
+    const urls = getBackendUrls();
 
-    for (const baseUrl of BACKEND_URLS) {
-      try {
-        const response = await fetch(`${baseUrl}/api/download-requests/`, {
-          method: "POST",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({
-            nom: nom,
-            prenom: prenom,
-            email: formData.email.trim(),
-            clinique_id: formData.clinique
-          })
-        });
+    try {
+      for (const baseUrl of urls) {
+        try {
+          const controller = new AbortController();
+          const timeoutId = setTimeout(() => controller.abort(), 6000);
 
-        if (response.ok) {
-          const resData = await response.json();
-          setGeneratedRequestId(resData.id || 1);
-          setSubmitSuccess(true);
-          setIsFormModalOpen(false);
-          success = true;
-          break;
-        } else {
-          const errData = await response.json().catch(() => ({}));
-          lastError = errData.detail || lastError;
+          const response = await fetch(`${baseUrl}/api/download-requests/`, {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({
+              nom: nom,
+              prenom: prenom,
+              email: trimmedEmail,
+              clinique_id: formData.clinique
+            }),
+            signal: controller.signal
+          });
+          clearTimeout(timeoutId);
+
+          if (response.ok) {
+            const resData = await response.json();
+            setGeneratedRequestId(resData.id || 1);
+            setSubmitSuccess(true);
+            setIsFormModalOpen(false);
+            success = true;
+            break;
+          } else {
+            const errData = await response.json().catch(() => ({}));
+            lastError = errData.detail || lastError;
+            break;
+          }
+        } catch (err: any) {
+          lastError = err.name === "AbortError" ? "Délai de connexion dépassé (timeout)." : (err.message || lastError);
         }
-      } catch (err: any) {
-        lastError = err.message || lastError;
       }
-    }
 
-    if (!success) {
-      setSubmitError(lastError);
+      if (!success) {
+        setSubmitError(lastError);
+      }
+    } finally {
+      setIsSubmitting(false);
     }
-    setIsSubmitting(false);
   };
 
   return (

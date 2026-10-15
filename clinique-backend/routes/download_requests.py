@@ -36,6 +36,7 @@ CLINIC_NAMES = {
 # PUBLIC ENDPOINTS (No authentication required)
 # ============================================================================
 
+@router.post("", response_model=DownloadRequestResponse, status_code=status.HTTP_201_CREATED)
 @router.post("/", response_model=DownloadRequestResponse, status_code=status.HTTP_201_CREATED)
 def create_download_request(
     request_data: DownloadRequestCreate,
