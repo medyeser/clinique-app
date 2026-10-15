@@ -137,6 +137,7 @@ def verify_access_code(
 # ADMIN ENDPOINTS (Authentication required)
 # ============================================================================
 
+@router.get("", response_model=List[DownloadRequestResponse])
 @router.get("/", response_model=List[DownloadRequestResponse])
 def get_all_download_requests(
     status_filter: Optional[str] = None,
